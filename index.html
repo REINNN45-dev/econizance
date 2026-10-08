@@ -538,7 +538,7 @@ document.getElementById("loginForm").addEventListener("submit", async event => {
 
     if (error) {
         console.error(error);
-        loginError.textContent = "Email atau password tidak sesuai.";
+        loginError.textContent = error.message;
         return;
     }
 
