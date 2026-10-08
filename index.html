@@ -305,6 +305,30 @@
 			{ id: "progress", label: "Progress", icon: "◴" }
 		];
 		function persist() { localStorage.setItem(storageKey, JSON.stringify(store)); }
+		async function saveProgressToSupabase(chapterId) {
+    if (!currentUser || currentUser.role !== "student") return;
+
+    const progress = studentData().progress[chapterId];
+
+    const { error } = await sb
+        .from("progress")
+        .upsert({
+            user_id: currentUser.id,
+            username: currentUser.username,
+            chapter_id: chapterId,
+            status: progress.status,
+            material: progress.material || false,
+            activity: progress.activity || false,
+            observation: progress.observation || null
+        }, {
+            onConflict: "user_id,chapter_id"
+        });
+
+    if (error) {
+        console.error("Gagal menyimpan progress:", error);
+        showToast("Progress gagal disimpan ke server.");
+    }
+}
 		function escapeHtml(value) { return String(value).replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]); }
 		function studentData() { return store.students[currentUser.username]; }
 		function recordActivity(text) {
@@ -397,6 +421,7 @@
 			if (!progress.material) {
 				progress.material = true;
 				recordActivity(`Membuka materi KP ${id}`);
+				await saveProgressToSupabase(id);
 			}
 			renderLesson();
 		}
