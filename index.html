@@ -413,7 +413,7 @@
 			mainContent.innerHTML = `<div class="welcome"><div><div class="eyebrow">Peta perjalanan</div><h1>Kegiatan Pembelajaran</h1><p>Selesaikan uji pemahaman untuk membuka bab berikutnya.</p></div><div class="date-pill">${overallProgress(data)}% perjalanan</div></div><div class="chapter-list">${chapters.map(chapter => chapterCard(chapter, data.progress[chapter.id])).join("")}</div>`;
 			attachChapterButtons();
 		}
-		function openChapter(id) {
+		async function openChapter(id) {
 			const data = studentData();
 			if (data.progress[id]?.status === "Locked") return showToast("Selesaikan uji pemahaman bab sebelumnya untuk membuka bab ini.");
 			currentChapter = id;
