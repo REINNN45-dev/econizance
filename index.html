@@ -234,11 +234,13 @@
 					<button type="button" class="active" data-role="student">Saya Siswa</button>
 					<button type="button" data-role="teacher">Saya Guru</button>
 				</div>
-				<label class="field">Username atau email<input id="username" autocomplete="username" value="naya" required /></label>
-				<label class="field">Password<input id="password" type="password" autocomplete="current-password" value="belajar" required /></label>
+				<label class="field">Email
+  <input id="username" type="email" autocomplete="email" value="naya@econizance.com" required />
+</label>
+				<label class="field">Password<input id="password" type="password" autocomplete="current-password" required /></label>
 				<div id="loginError" class="login-error" aria-live="polite"></div>
 				<button class="btn full" type="submit">Masuk ke ruang belajar <span aria-hidden="true">→</span></button>
-				<div class="demo-note">Akun demo: siswa <b>naya</b> atau <b>rafli</b>, guru <b>guru</b>. Kata sandi: <b>belajar</b>.</div>
+				<div class="demo-note">Gunakan email dan password akun ECONIZANCE kamu.</div>
 			</form>
 		</div>
 	</section>
@@ -505,29 +507,80 @@
 			mainContent.innerHTML = `<div class="welcome"><div><div class="eyebrow">Aktivitas kelas</div><h1>Riwayat aktivitas</h1><p>Catatan materi, aktivitas, dan evaluasi seluruh siswa.</p></div></div><section class="panel">${store.history.length ? store.history.map(item => `<div class="activity-row"><span class="activity-dot"></span><p><b>${escapeHtml(item.student)}</b> · ${escapeHtml(item.text)}<small>${escapeHtml(item.time)}</small></p></div>`).join("") : `<div class="empty-state">Belum ada aktivitas yang tercatat.</div>`}</section>`;
 		}
 		document.querySelectorAll("[data-role]").forEach(button => button.addEventListener("click", () => {
-			selectedRole = button.dataset.role;
-			document.querySelectorAll("[data-role]").forEach(item => item.classList.toggle("active", item === button));
-			document.getElementById("username").value = selectedRole === "teacher" ? "guru" : "naya";
-			document.getElementById("loginError").textContent = "";
-		}));
-		document.getElementById("loginForm").addEventListener("submit", event => {
-			event.preventDefault();
-			const username = document.getElementById("username").value.trim().toLowerCase();
-			const password = document.getElementById("password").value;
-			if (password !== "belajar") {
-				document.getElementById("loginError").textContent = "Username atau password belum sesuai.";
-				return;
-			}
-			if (selectedRole === "teacher" && username === "guru") return enterApp({ username, role: "teacher" });
-			if (selectedRole === "student" && store.students[username]) return enterApp({ username, role: "student" });
-			document.getElementById("loginError").textContent = "Akun tidak ditemukan untuk peran yang dipilih.";
-		});
-		document.getElementById("logoutButton").addEventListener("click", () => {
-			currentUser = null;
-			appScreen.classList.add("hidden");
-			loginScreen.classList.remove("hidden");
-			document.getElementById("password").value = "belajar";
-		});
+    selectedRole = button.dataset.role;
+
+    document.querySelectorAll("[data-role]").forEach(item =>
+        item.classList.toggle("active", item === button)
+    );
+
+    document.getElementById("username").value =
+        selectedRole === "teacher"
+            ? "guru@econizance.com"
+            : "naya@econizance.com";
+
+    document.getElementById("password").value = "";
+    document.getElementById("loginError").textContent = "";
+}));
+
+document.getElementById("loginForm").addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const email = document.getElementById("username").value.trim().toLowerCase();
+    const password = document.getElementById("password").value;
+
+    const loginError = document.getElementById("loginError");
+    loginError.textContent = "Memeriksa akun...";
+
+    const { data, error } = await sb.auth.signInWithPassword({
+        email: email,
+        password: password
+    });
+
+    if (error) {
+        console.error(error);
+        loginError.textContent = "Email atau password tidak sesuai.";
+        return;
+    }
+
+    const user = data.user;
+
+    const { data: profile, error: profileError } = await sb
+        .from("profiles")
+        .select("id, username, full_name, role")
+        .eq("id", user.id)
+        .single();
+
+    if (profileError || !profile) {
+        console.error(profileError);
+        await sb.auth.signOut();
+        loginError.textContent = "Profil pengguna belum ditemukan.";
+        return;
+    }
+
+    if (profile.role !== selectedRole) {
+        await sb.auth.signOut();
+        loginError.textContent = "Akun tidak sesuai dengan peran yang dipilih.";
+        return;
+    }
+
+    loginError.textContent = "";
+
+    enterApp({
+        id: profile.id,
+        username: profile.username,
+        name: profile.full_name,
+        role: profile.role
+    });
+});
+		document.getElementById("logoutButton").addEventListener("click", async () => {
+    await sb.auth.signOut();
+
+    currentUser = null;
+    appScreen.classList.add("hidden");
+    loginScreen.classList.remove("hidden");
+
+    document.getElementById("password").value = "";
+});
 	</script>
 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 	<script>
