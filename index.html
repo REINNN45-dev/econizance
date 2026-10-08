@@ -450,16 +450,35 @@
 			document.getElementById("goAssessment").addEventListener("click", renderAssessment);
 			document.getElementById("previousChapter").addEventListener("click", () => openChapter(Math.max(1, currentChapter - 1)));
 		}
-		function saveActivity() {
-			const observation = document.getElementById("observation").value.trim();
-			if (observation.length < 8) return showToast("Tambahkan catatan singkat sebelum menyimpan aktivitas.");
-			const progress = studentData().progress[currentChapter];
-			progress.activity = true;
-			progress.observation = observation;
-			recordActivity(`Menyelesaikan aktivitas KP ${currentChapter}`);
-			document.getElementById("activityStatus").textContent = "Aktivitas sudah tersimpan.";
-			showToast("Aktivitas tersimpan di progress belajarmu.");
-		}
+		async function saveActivity() {
+    const observation = document.getElementById("observation").value.trim();
+    if (observation.length < 8) return showToast("Tambahkan catatan singkat sebelum menyimpan aktivitas.");
+
+    const progress = studentData().progress[currentChapter];
+    progress.activity = true;
+    progress.observation = observation;
+
+    recordActivity(`Menyelesaikan aktivitas KP ${currentChapter}`);
+
+    const { error } = await sb
+        .from("activities")
+        .insert({
+            user_id: currentUser.id,
+            username: currentUser.username,
+            chapter_id: currentChapter,
+            text: observation,
+            time: new Date().toLocaleString("id-ID")
+        });
+
+    if (error) {
+        console.error("Gagal menyimpan aktivitas:", error);
+        showToast("Aktivitas gagal disimpan ke server.");
+        return;
+    }
+
+    document.getElementById("activityStatus").textContent = "Aktivitas sudah tersimpan.";
+    showToast("Aktivitas tersimpan.");
+}
 		function renderAssessment(result) {
 			const chapter = chapters[currentChapter - 1];
 			document.getElementById("breadcrumb").textContent = `KP ${currentChapter} · Uji Pemahaman`;
