@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="theme-color" content="#f4fbf7" />
+	<title>ECONIZANCE | Jelajah Ekonomi Pesisir</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
+	<style>
+		:root {
+			--ink: #193e3a;
+			--muted: #6b8580;
+			--sea: #147c73;
+			--sea-dark: #105f59;
+			--mint: #d9f0e6;
+			--lime: #c8e96c;
+			--coral: #ed8067;
+			--sand: #f3cf8b;
+			--paper: #f4fbf7;
+			--white: #fff;
+			--line: #dcebe4;
+			--shadow: 0 14px 40px rgba(25, 62, 58, .08);
+		}
+		* { box-sizing: border-box; }
+		body { margin: 0; color: var(--ink); background: var(--paper); font-family: "DM Sans", sans-serif; font-size: 14px; }
+		button, input { font: inherit; }
+		button { cursor: pointer; }
+		.hidden { display: none !important; }
+		.login-wrap { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(360px, .95fr); background: #e2f2e9; }
+		.login-art { min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 42px clamp(28px, 7vw, 100px); color: white; background: linear-gradient(180deg, rgba(13, 66, 60, .08), rgba(9, 54, 51, .8)), url("https://images.unsplash.com/photo-1546026423-cc4642628d2b?auto=format&fit=crop&w=1400&q=85") center / cover; }
+		.brand { display: flex; align-items: center; gap: 11px; font-weight: 800; letter-spacing: .04em; }
+		.brand-mark { display: grid; place-items: center; width: 39px; height: 39px; color: var(--ink); background: var(--lime); border-radius: 13px 13px 13px 4px; font-size: 20px; }
+		.brand-name { font-size: 17px; }
+		.brand-name span { display: block; font-size: 9px; font-weight: 700; letter-spacing: .2em; opacity: .72; }
+		.art-copy { max-width: 520px; padding: 0 0 8vh; animation: rise .7s ease both; }
+		.eyebrow { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .15em; color: var(--sea); }
+		.art-copy .eyebrow { color: var(--lime); }
+		h1, h2, h3, p { margin-top: 0; }
+		.art-copy h1 { margin: 13px 0; font-family: Fraunces, Georgia, serif; font-size: clamp(42px, 5.7vw, 76px); line-height: .99; letter-spacing: 0; }
+		.art-copy p { max-width: 400px; color: rgba(255,255,255,.84); font-size: 16px; line-height: 1.7; }
+		.login-panel { display: grid; place-items: center; padding: 38px 24px; background: var(--paper); }
+		.login-box { width: min(100%, 410px); animation: rise .55s ease both; }
+		.login-box h2 { margin: 32px 0 7px; font: 700 31px Fraunces, Georgia, serif; }
+		.subtle { color: var(--muted); line-height: 1.6; }
+		.role-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin: 27px 0 23px; padding: 5px; background: #e8f1ec; border-radius: 12px; }
+		.role-switch button { min-height: 42px; border: 0; border-radius: 9px; color: var(--muted); background: transparent; font-weight: 700; }
+		.role-switch button.active { color: var(--sea-dark); background: white; box-shadow: 0 2px 8px #244d4114; }
+		.field { display: grid; gap: 7px; margin: 16px 0; color: var(--ink); font-size: 12px; font-weight: 700; }
+		.field input { width: 100%; height: 47px; padding: 0 13px; outline: none; border: 1px solid var(--line); border-radius: 9px; color: var(--ink); background: white; }
+		.field input:focus { border-color: var(--sea); box-shadow: 0 0 0 3px #147c731a; }
+		.btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 43px; padding: 0 16px; border: 0; border-radius: 9px; color: white; background: var(--sea); font-weight: 700; transition: transform .16s ease, background .16s ease; }
+		.btn:hover { transform: translateY(-1px); background: var(--sea-dark); }
+		.btn.full { width: 100%; min-height: 48px; margin-top: 7px; }
+		.btn.secondary { color: var(--sea-dark); background: var(--mint); }
+		.btn.coral { background: var(--coral); }
+		.demo-note { margin-top: 22px; padding: 12px 14px; border-left: 3px solid var(--sand); border-radius: 3px 8px 8px 3px; color: var(--muted); background: #fbf7ec; font-size: 11px; line-height: 1.7; }
+		.login-error { min-height: 18px; color: #bd513a; font-size: 12px; }
+		.app { min-height: 100vh; display: grid; grid-template-columns: 238px minmax(0, 1fr); }
+		.sidebar { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; padding: 25px 17px; border-right: 1px solid var(--line); background: #fbfdfb; }
+		.sidebar .brand { margin: 0 7px 34px; }
+		.sidebar .brand-name { font-size: 14px; }
+		.side-label { margin: 0 9px 10px; color: #91a49e; font-size: 10px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+		.nav-list { display: grid; gap: 5px; }
+		.nav-item { display: flex; align-items: center; gap: 11px; width: 100%; min-height: 43px; padding: 0 11px; border: 0; border-radius: 9px; color: #67817b; background: transparent; text-align: left; font-weight: 600; }
+		.nav-item:hover, .nav-item.active { color: var(--sea-dark); background: #e7f4ed; }
+		.nav-icon { width: 21px; text-align: center; font-size: 17px; }
+		.side-bottom { margin-top: auto; padding: 13px; border-radius: 11px; background: #edf6ef; }
+		.side-bottom strong { display: block; margin-bottom: 5px; font-size: 12px; }
+		.side-bottom span { color: var(--muted); font-size: 11px; line-height: 1.5; }
+		.workspace { min-width: 0; }
+		.topbar { height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 clamp(20px, 4vw, 56px); border-bottom: 1px solid var(--line); background: rgba(255,255,255,.76); }
+		.crumb { color: var(--muted); font-size: 12px; }
+		.account { display: flex; align-items: center; gap: 10px; }
+		.avatar { display: grid; place-items: center; width: 35px; height: 35px; border-radius: 50%; color: var(--sea-dark); background: var(--lime); font-weight: 800; }
+		.account-name { font-size: 12px; font-weight: 700; }
+		.account-role { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; }
+		.logout { width: 36px; height: 36px; margin-left: 7px; border: 1px solid var(--line); border-radius: 9px; color: var(--muted); background: white; }
+		main { width: min(100%, 1270px); margin: 0 auto; padding: 33px clamp(20px, 4vw, 56px) 56px; }
+		.welcome { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 25px; }
+		.welcome h1 { margin: 5px 0 6px; font: 700 clamp(27px, 3vw, 38px) Fraunces, Georgia, serif; }
+		.welcome p { margin-bottom: 0; color: var(--muted); }
+		.date-pill { flex: none; padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); background: white; font-size: 11px; }
+		.hero { position: relative; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(195px, .6fr); min-height: 225px; overflow: hidden; margin-bottom: 24px; border-radius: 13px; color: white; background: #126e67; }
+		.hero::after { position: absolute; top: -130px; right: 17%; width: 400px; height: 400px; border: 1px solid #ffffff20; border-radius: 50%; content: ""; box-shadow: 0 0 0 45px #ffffff0a, 0 0 0 90px #ffffff08; }
+		.hero-copy { z-index: 1; align-self: center; padding: 30px 35px; }
+		.hero-copy .eyebrow { color: var(--lime); }
+		.hero-copy h2 { max-width: 580px; margin: 10px 0; font: 700 clamp(24px, 3vw, 34px) Fraunces, Georgia, serif; }
+		.hero-copy p { max-width: 500px; margin: 0 0 20px; color: #d8eee4; line-height: 1.6; }
+		.hero .btn { color: var(--ink); background: var(--lime); }
+		.hero-photo { min-height: 225px; background: linear-gradient(90deg, #126e67 0%, #126e6720 40%), url("https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&w=800&q=80") center / cover; }
+		.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; margin-bottom: 30px; }
+		.stat { display: flex; align-items: center; gap: 13px; min-height: 79px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; background: white; }
+		.stat-icon { display: grid; place-items: center; width: 39px; height: 39px; flex: none; border-radius: 11px; background: #e7f5ed; font-size: 18px; }
+		.stat:nth-child(2) .stat-icon { background: #fff0e9; }
+		.stat:nth-child(3) .stat-icon { background: #f7f2db; }
+		.stat strong { display: block; font-size: 20px; line-height: 1.2; }
+		.stat span { color: var(--muted); font-size: 11px; }
+		.section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin: 27px 0 13px; }
+		.section-head h2 { margin: 0; font: 700 22px Fraunces, Georgia, serif; }
+		.section-head p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+		.chapter-list { display: grid; gap: 10px; }
+		.chapter { display: grid; grid-template-columns: 55px minmax(0, 1fr) auto; align-items: center; gap: 15px; padding: 15px; border: 1px solid var(--line); border-radius: 10px; background: white; transition: transform .18s ease, box-shadow .18s ease; }
+		.chapter:not(.locked):hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+		.chapter-number { display: grid; place-items: center; width: 51px; height: 51px; border-radius: 13px 13px 13px 4px; color: var(--sea-dark); background: var(--mint); font: 700 17px Fraunces, Georgia, serif; }
+		.chapter[data-status="Completed"] .chapter-number { background: var(--lime); }
+		.chapter[data-status="Locked"] .chapter-number { color: #8b9994; background: #edf1ee; }
+		.chapter h3 { margin: 0 0 4px; font-size: 14px; }
+		.chapter p { margin: 0; color: var(--muted); font-size: 11px; }
+		.chapter-meta { display: flex; align-items: center; gap: 14px; }
+		.status { padding: 6px 9px; border-radius: 30px; color: #9a6631; background: #fbf0d7; font-size: 10px; font-weight: 800; white-space: nowrap; }
+		.status.completed { color: #386d38; background: #e7f4d5; }
+		.status.locked { color: #7e8d87; background: #eef1ef; }
+		.progress-mini { width: 70px; height: 5px; overflow: hidden; border-radius: 5px; background: #e9f0ec; }
+		.progress-mini i { display: block; height: 100%; border-radius: inherit; background: var(--sea); }
+		.chapter-action { min-width: 72px; padding: 8px 11px; border: 1px solid var(--line); border-radius: 7px; color: var(--sea-dark); background: white; font-size: 11px; font-weight: 700; }
+		.chapter-action:disabled { color: #9ba8a3; cursor: not-allowed; }
+		.lower-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(220px, .65fr); gap: 16px; margin-top: 26px; }
+		.panel { padding: 18px; border: 1px solid var(--line); border-radius: 10px; background: white; }
+		.panel h3 { margin: 0 0 13px; font: 700 17px Fraunces, Georgia, serif; }
+		.activity-row { display: flex; align-items: center; gap: 11px; padding: 10px 0; border-top: 1px solid #edf2ef; }
+		.activity-dot { width: 9px; height: 9px; flex: none; border-radius: 50%; background: var(--coral); }
+		.activity-row p { margin: 0; font-size: 11px; }
+		.activity-row small { display: block; margin-top: 3px; color: var(--muted); }
+		.progress-ring { display: grid; place-items: center; width: 110px; height: 110px; margin: 7px auto 12px; border-radius: 50%; background: conic-gradient(var(--sea) var(--progress), #e7f0eb 0); }
+		.progress-ring::before { position: absolute; width: 84px; height: 84px; border-radius: 50%; background: white; content: ""; }
+		.progress-ring strong { z-index: 1; font-size: 22px; }
+		.center { text-align: center; }
+		.muted-small { color: var(--muted); font-size: 11px; }
+		.lesson-layout { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 20px; align-items: start; }
+		.lesson-main { min-width: 0; }
+		.back-link { margin-bottom: 18px; padding: 0; border: 0; color: var(--sea); background: none; font-weight: 700; }
+		.lesson-heading h1 { max-width: 800px; margin: 8px 0; font: 700 clamp(27px, 3.5vw, 42px) Fraunces, Georgia, serif; }
+		.lesson-heading p { color: var(--muted); }
+		.lesson-image { height: 245px; margin: 19px 0; border-radius: 11px; background: linear-gradient(0deg, #103a3733, transparent), url("https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&w=1400&q=85") center 48% / cover; }
+		.media-preview { margin-top: 14px; }
+		.media-preview img, .media-preview video { display: block; width: 100%; max-height: 420px; border-radius: 9px; background: #102f2d; object-fit: contain; }
+		.media-preview audio { width: 100%; }
+		.lesson-content { padding: 23px 25px; border: 1px solid var(--line); border-radius: 10px; background: white; line-height: 1.8; }
+		.lesson-content h2 { margin: 0 0 11px; font: 700 23px Fraunces, Georgia, serif; }
+		.lesson-content h3 { margin: 23px 0 7px; font-size: 15px; }
+		.lesson-content p, .lesson-content li { color: #536e67; }
+		.callout { margin: 17px 0; padding: 14px 16px; border-left: 3px solid var(--coral); border-radius: 2px 8px 8px 2px; background: #fff4ed; color: #684e41; }
+		.lesson-side { position: sticky; top: 20px; padding: 17px; border: 1px solid var(--line); border-radius: 10px; background: white; }
+		.lesson-side h3 { font: 700 17px Fraunces, Georgia, serif; }
+		.lesson-step { display: flex; gap: 10px; padding: 10px 0; border-top: 1px solid #edf2ef; color: var(--muted); font-size: 11px; }
+		.lesson-step b { color: var(--sea); }
+		.lesson-step.active { color: var(--ink); font-weight: 700; }
+		.activity-box { margin: 20px 0; padding: 19px; border: 1px solid #e9dfc3; border-radius: 10px; background: #fffbef; }
+		.activity-box h3 { margin-bottom: 6px; }
+		.activity-box p { margin-bottom: 14px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+		.assessment { max-width: 800px; margin: 0 auto; }
+		.question { margin: 15px 0; padding: 19px; border: 1px solid var(--line); border-radius: 10px; background: white; }
+		.question h3 { margin: 0 0 14px; font-size: 14px; line-height: 1.5; }
+		.option { display: flex; gap: 10px; align-items: flex-start; margin: 10px 0; color: #536e67; font-size: 12px; line-height: 1.5; cursor: pointer; }
+		.option input { accent-color: var(--sea); }
+		.assessment-result { margin: 16px 0; padding: 18px; border-radius: 10px; background: #e7f4ed; text-align: center; }
+		.assessment-result h2 { margin-bottom: 6px; font: 700 27px Fraunces, Georgia, serif; }
+		.assessment-result.fail { background: #fff0e9; }
+		.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: white; }
+		table { width: 100%; border-collapse: collapse; text-align: left; }
+		th, td { padding: 13px 15px; border-bottom: 1px solid #edf2ef; font-size: 11px; white-space: nowrap; }
+		th { color: var(--muted); background: #f8fbf9; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
+		tr:last-child td { border-bottom: 0; }
+		.student-cell { display: flex; align-items: center; gap: 9px; font-weight: 700; }
+		.tiny-avatar { display: grid; place-items: center; width: 29px; height: 29px; border-radius: 50%; color: var(--sea-dark); background: var(--mint); }
+		.role-tag { padding: 5px 8px; border-radius: 20px; color: #326d51; background: #e7f4ed; font-size: 10px; font-weight: 700; }
+		.empty-state { padding: 30px; color: var(--muted); text-align: center; }
+		.toast { position: fixed; right: 20px; bottom: 20px; z-index: 5; max-width: min(360px, calc(100vw - 40px)); padding: 13px 17px; border-radius: 9px; color: white; background: var(--ink); box-shadow: var(--shadow); animation: rise .2s ease both; }
+		@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+		@media (max-width: 850px) {
+			.app { grid-template-columns: 72px minmax(0,1fr); }
+			.sidebar { align-items: center; padding: 18px 8px; }
+			.sidebar .brand { margin: 0 0 32px; }
+			.sidebar .brand-name, .sidebar .side-label, .nav-text, .side-bottom { display: none; }
+			.nav-item { justify-content: center; width: 48px; padding: 0; }
+			.nav-icon { font-size: 18px; }
+			.lesson-layout { grid-template-columns: minmax(0,1fr); }
+			.lesson-side { position: static; order: -1; }
+		}
+		@media (max-width: 620px) {
+			.login-wrap { grid-template-columns: 1fr; }
+			.login-art { min-height: 260px; padding: 25px 26px; }
+			.art-copy { padding: 24px 0 0; }
+			.art-copy h1 { font-size: 43px; }
+			.art-copy p { display: none; }
+			.login-panel { padding: 22px 24px 35px; }
+			.login-box h2 { margin-top: 10px; font-size: 27px; }
+			.role-switch { margin: 19px 0; }
+			.app { display: block; padding-bottom: 62px; }
+			.sidebar { position: fixed; z-index: 4; inset: auto 0 0; width: 100%; height: 60px; flex-direction: row; justify-content: center; padding: 5px 10px; border-top: 1px solid var(--line); border-right: 0; }
+			.sidebar .brand, .sidebar .side-label, .sidebar .side-bottom { display: none; }
+			.nav-list { display: flex; gap: 6px; }
+			.nav-item { width: 52px; min-height: 46px; }
+			.topbar { height: 59px; padding: 0 16px; }
+			main { padding: 24px 16px 32px; }
+			.account-name { display: none; }
+			.welcome { align-items: flex-start; }
+			.welcome h1 { font-size: 29px; }
+			.date-pill { display: none; }
+			.hero { grid-template-columns: 1fr; min-height: 0; }
+			.hero-copy { padding: 24px 22px; }
+			.hero-photo { min-height: 105px; }
+			.stats { gap: 7px; }
+			.stat { align-items: flex-start; flex-direction: column; gap: 8px; padding: 11px; }
+			.stat-icon { width: 32px; height: 32px; }
+			.stat strong { font-size: 17px; }
+			.stat span { font-size: 10px; }
+			.chapter { grid-template-columns: 43px minmax(0,1fr); gap: 10px; padding: 12px; }
+			.chapter-number { width: 41px; height: 41px; }
+			.chapter-meta { grid-column: 2; justify-content: space-between; }
+			.chapter-action { min-width: 65px; }
+			.lower-grid { grid-template-columns: 1fr; }
+			.lesson-image { height: 175px; }
+			.lesson-content { padding: 18px; }
+			.progress-mini { width: 54px; }
+		}
+		@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+	</style>
+</head>
+<body>
+	<section id="loginScreen" class="login-wrap">
+		<div class="login-art">
+			<div class="brand"><span class="brand-mark">◉</span><span class="brand-name">ECONIZANCE<span>EKONOMI PESISIR</span></span></div>
+			<div class="art-copy"><div class="eyebrow">Belajar dari laut, tumbuh bersama</div><h1>Jelajahi ekonomi pesisir.</h1><p>Kenali hubungan antara ekosistem laut, kehidupan masyarakat, dan pilihan ekonomi yang berkelanjutan.</p></div>
+		</div>
+		<div class="login-panel">
+			<form id="loginForm" class="login-box">
+				<div class="eyebrow">Ruang belajar ECONIZANCE</div>
+				<h2>Selamat datang!</h2>
+				<p class="subtle">Masuk untuk melanjutkan petualangan belajarmu.</p>
+				<div class="role-switch" role="group" aria-label="Pilih peran">
+					<button type="button" class="active" data-role="student">Saya Siswa</button>
+					<button type="button" data-role="teacher">Saya Guru</button>
+				</div>
+				<label class="field">Username atau email<input id="username" autocomplete="username" value="naya" required /></label>
+				<label class="field">Password<input id="password" type="password" autocomplete="current-password" value="belajar" required /></label>
+				<div id="loginError" class="login-error" aria-live="polite"></div>
+				<button class="btn full" type="submit">Masuk ke ruang belajar <span aria-hidden="true">→</span></button>
+				<div class="demo-note">Akun demo: siswa <b>naya</b> atau <b>rafli</b>, guru <b>guru</b>. Kata sandi: <b>belajar</b>.</div>
+			</form>
+		</div>
+	</section>
+
+	<div id="appScreen" class="app hidden">
+		<aside class="sidebar">
+			<div class="brand"><span class="brand-mark">◉</span><span class="brand-name">ECONIZANCE<span>EKONOMI PESISIR</span></span></div>
+			<div class="side-label">Menu utama</div>
+			<nav id="navigation" class="nav-list" aria-label="Navigasi utama"></nav>
+			<div class="side-bottom"><strong>Terus bertumbuh 🌱</strong><span>Setiap langkah kecil membawamu lebih dekat ke laut yang lestari.</span></div>
+		</aside>
+		<div class="workspace">
+			<header class="topbar"><span id="breadcrumb" class="crumb">Beranda</span><div class="account"><div id="userAvatar" class="avatar">N</div><div class="account-name"><span id="accountName">Naya</span><span id="accountRole" class="account-role">Siswa</span></div><button id="logoutButton" class="logout" title="Keluar" aria-label="Keluar">↪</button></div></header>
+			<main id="mainContent"></main>
+		</div>
+	</div>
+	<div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+	<script>
+		const passingGrade = 75;
+		const chapters = [
+			{ id: 1, title: "Ekosistem Pesisir dan Potensi Ekonomi", short: "Mengenal ekosistem pesisir", time: "15 menit", questions: [
+				{ text: "Apa yang dimaksud dengan ekosistem pesisir?", options: ["Wilayah peralihan darat dan laut yang saling berinteraksi", "Wilayah perkotaan di dekat pelabuhan", "Kumpulan kegiatan industri di pantai"], answer: 0 },
+				{ text: "Manakah contoh sumber daya pesisir yang dapat diperbarui jika dikelola baik?", options: ["Terumbu karang dan hutan mangrove", "Pasir mineral tambang", "Bahan bakar fosil lepas pantai"], answer: 0 },
+				{ text: "Mengapa ekosistem yang sehat penting bagi ekonomi masyarakat pesisir?", options: ["Mendukung perikanan, wisata, dan perlindungan pantai", "Menghilangkan kebutuhan kerja sama warga", "Membuat seluruh sumber daya tidak terbatas"], answer: 0 },
+				{ text: "Kegiatan ekonomi yang memperhatikan kelestarian lingkungan disebut ...", options: ["Ekonomi berkelanjutan", "Eksploitasi terbuka", "Konsumsi berlebihan"], answer: 0 }
+			]},
+			{ id: 2, title: "Aktivitas Ekonomi Masyarakat Pesisir", short: "Mengenal mata pencaharian pesisir", time: "18 menit", questions: [
+				{ text: "Kegiatan ekonomi utama yang banyak dijumpai di wilayah pesisir adalah ...", options: ["Perikanan dan pengolahan hasil laut", "Pertambangan batu bara di pegunungan", "Perkebunan teh dataran tinggi"], answer: 0 },
+				{ text: "Nilai tambah hasil tangkapan ikan dapat dilakukan dengan ...", options: ["Mengolah dan mengemas produk secara higienis", "Membuang hasil tangkapan yang berlebih", "Menjual seluruh hasil tanpa penyimpanan"], answer: 0 },
+				{ text: "Contoh jasa ekonomi berbasis alam pesisir yaitu ...", options: ["Ekowisata mangrove yang dikelola warga", "Penebangan mangrove tanpa batas", "Pembuangan limbah ke laut"], answer: 0 },
+				{ text: "Mengapa diversifikasi mata pencaharian dapat bermanfaat?", options: ["Mengurangi ketergantungan pada satu sumber pendapatan", "Menghapus seluruh aktivitas perikanan", "Meningkatkan tekanan pada satu jenis sumber daya"], answer: 0 }
+			]},
+			{ id: 3, title: "Ekonomi Biru dan Pembangunan Berkelanjutan", short: "Merancang masa depan laut", time: "20 menit", questions: [
+				{ text: "Prinsip ekonomi biru mengutamakan ...", options: ["Pemanfaatan sumber daya laut yang produktif dan lestari", "Pengambilan sumber daya sebanyak mungkin", "Pembangunan tanpa mempertimbangkan ekosistem"], answer: 0 },
+				{ text: "Indikator kegiatan wisata pesisir yang bertanggung jawab adalah ...", options: ["Melibatkan warga dan menjaga daya dukung lingkungan", "Meninggalkan sampah di lokasi wisata", "Mengganggu habitat satwa laut"], answer: 0 },
+				{ text: "Siapa yang sebaiknya terlibat dalam pengelolaan pesisir berkelanjutan?", options: ["Masyarakat, pemerintah, pelaku usaha, dan akademisi", "Satu pelaku usaha saja", "Pengunjung tanpa masyarakat setempat"], answer: 0 },
+				{ text: "Tujuan pembangunan berkelanjutan adalah memenuhi kebutuhan kini ...", options: ["tanpa mengurangi kemampuan generasi mendatang", "dengan menghabiskan seluruh sumber daya", "tanpa memperhatikan kesejahteraan masyarakat"], answer: 0 }
+			]}
+		];
+		const storageKey = "econizance-learning-v1";
+		const defaultStore = {
+			students: {
+				naya: { name: "Naya Putri", progress: { 1: { status: "In Progress", material: false, activity: false }, 2: { status: "Locked" }, 3: { status: "Locked" } }, scores: {}, activities: [] },
+				rafli: { name: "Rafli Akbar", progress: { 1: { status: "Completed", material: true, activity: true }, 2: { status: "In Progress", material: false, activity: false }, 3: { status: "Locked" } }, scores: { 1: 85 }, activities: [{ text: "Lulus Uji Pemahaman KP 1", time: "Sebelumnya" }] }
+			},
+			history: []
+		};
+		let store;
+		try { store = JSON.parse(localStorage.getItem(storageKey)) || defaultStore; } catch { store = defaultStore; }
+		let currentUser = null;
+		let selectedRole = "student";
+		let currentChapter = 1;
+		let toastTimeout;
+
+		const loginScreen = document.getElementById("loginScreen");
+		const appScreen = document.getElementById("appScreen");
+		const mainContent = document.getElementById("mainContent");
+		const navItems = [
+			{ id: "home", label: "Beranda", icon: "⌂" },
+			{ id: "chapters", label: "Kegiatan Pembelajaran", icon: "▤" },
+			{ id: "progress", label: "Progress", icon: "◴" }
+		];
+		function persist() { localStorage.setItem(storageKey, JSON.stringify(store)); }
+		function escapeHtml(value) { return String(value).replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]); }
+		function studentData() { return store.students[currentUser.username]; }
+		function recordActivity(text) {
+			const data = studentData();
+			data.activities.unshift({ text, time: "Baru saja" });
+			data.activities = data.activities.slice(0, 12);
+			store.history.unshift({ student: data.name, username: currentUser.username, text, time: new Date().toLocaleString("id-ID") });
+			store.history = store.history.slice(0, 40);
+			persist();
+		}
+		function showToast(message) {
+			const toast = document.getElementById("toast");
+			toast.textContent = message;
+			toast.classList.remove("hidden");
+			clearTimeout(toastTimeout);
+			toastTimeout = setTimeout(() => toast.classList.add("hidden"), 2600);
+		}
+		function enterApp(user) {
+			currentUser = user;
+			loginScreen.classList.add("hidden");
+			appScreen.classList.remove("hidden");
+			const label = user.role === "teacher" ? "Guru / Admin" : studentData().name;
+			document.getElementById("accountName").textContent = label;
+			document.getElementById("accountRole").textContent = user.role === "teacher" ? "Guru / Admin" : "Siswa";
+			document.getElementById("userAvatar").textContent = label.charAt(0).toUpperCase();
+			renderNavigation("home");
+			renderHome();
+		}
+		function renderNavigation(active) {
+			const items = currentUser.role === "teacher" ? [
+				{ id: "home", label: "Dashboard", icon: "⌂" },
+				{ id: "students", label: "Daftar Siswa", icon: "♧" },
+				{ id: "history", label: "Riwayat Aktivitas", icon: "◷" }
+			] : navItems;
+			document.getElementById("navigation").innerHTML = items.map(item => `<button class="nav-item ${active === item.id ? "active" : ""}" data-view="${item.id}" title="${item.label}"><span class="nav-icon">${item.icon}</span><span class="nav-text">${item.label}</span></button>`).join("");
+			document.querySelectorAll("[data-view]").forEach(button => button.addEventListener("click", () => navigate(button.dataset.view)));
+		}
+		function navigate(view) {
+			renderNavigation(view);
+			if (view === "students") renderStudents();
+			else if (view === "history") renderHistory();
+			else if (view === "progress" && currentUser.role === "student") renderProgress();
+			else if (view === "chapters" && currentUser.role === "student") renderChapters();
+			else renderHome();
+		}
+		function overallProgress(data) {
+			const completed = Object.values(data.progress).filter(chapter => chapter.status === "Completed").length;
+			return Math.round(completed / chapters.length * 100);
+		}
+		function chapterCard(chapter, progress) {
+			const status = progress?.status || "Locked";
+			const score = studentData().scores[chapter.id];
+			const fill = status === "Completed" ? 100 : (progress?.activity ? 62 : progress?.material ? 35 : 12);
+			const locked = status === "Locked";
+			const action = locked ? "Terkunci" : status === "Completed" ? "Ulangi" : "Lanjutkan";
+			return `<article class="chapter ${locked ? "locked" : ""}" data-status="${status}"><div class="chapter-number">KP ${chapter.id}</div><div><h3>${chapter.title}</h3><p>${chapter.time}${score !== undefined ? ` · Nilai terakhir ${score}` : " · Materi, aktivitas, dan uji pemahaman"}</p></div><div class="chapter-meta"><span class="status ${status === "Completed" ? "completed" : locked ? "locked" : ""}">${status === "Completed" ? "✓ Selesai" : status === "Locked" ? "⌑ Terkunci" : "● Berlangsung"}</span><div class="progress-mini" aria-label="Progress ${fill}%"><i style="width:${fill}%"></i></div><button class="chapter-action" data-open-chapter="${chapter.id}" ${locked ? "disabled" : ""}>${action}</button></div></article>`;
+		}
+		function attachChapterButtons() {
+			document.querySelectorAll("[data-open-chapter]").forEach(button => button.addEventListener("click", () => openChapter(Number(button.dataset.openChapter))));
+		}
+		function renderHome() {
+			document.getElementById("breadcrumb").textContent = currentUser.role === "teacher" ? "Dashboard guru" : "Beranda";
+			if (currentUser.role === "teacher") return renderTeacherHome();
+			const data = studentData();
+			const completed = Object.values(data.progress).filter(item => item.status === "Completed").length;
+			const scores = Object.values(data.scores);
+			const average = scores.length ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length) : "–";
+			mainContent.innerHTML = `<div class="welcome"><div><div class="eyebrow">Ruang belajar siswa</div><h1>Hai, ${escapeHtml(data.name.split(" ")[0])}! 👋</h1><p>Siap menemukan hal baru dari pesisir hari ini?</p></div><div class="date-pill">${new Intl.DateTimeFormat("id-ID", { dateStyle: "full" }).format(new Date())}</div></div>
+				<section class="hero"><div class="hero-copy"><div class="eyebrow">Petualangan belajarmu</div><h2>Laut yang sehat, ekonomi yang kuat.</h2><p>Jelajahi cerita pesisir, temukan ide baru, dan lihat bagaimana pilihan ekonomi memberi dampak.</p><button class="btn" id="continueLearning">Lanjut belajar <span aria-hidden="true">→</span></button></div><div class="hero-photo" role="img" aria-label="Terumbu karang dan ekosistem laut"></div></section>
+				<div class="stats"><div class="stat"><div class="stat-icon">🐚</div><div><strong>${completed}/${chapters.length}</strong><span>KP diselesaikan</span></div></div><div class="stat"><div class="stat-icon">✦</div><div><strong>${average}${average === "–" ? "" : ""}</strong><span>Rata-rata nilai</span></div></div><div class="stat"><div class="stat-icon">🌱</div><div><strong>${overallProgress(data)}%</strong><span>Progress belajar</span></div></div></div>
+				<div class="section-head"><div><h2>Kegiatan Pembelajaran</h2><p>Setiap bab membuka jalur ke pengetahuan berikutnya.</p></div><button class="btn secondary" id="allChapters">Lihat semua <span aria-hidden="true">→</span></button></div>
+				<div id="chapterList" class="chapter-list">${chapters.map(chapter => chapterCard(chapter, data.progress[chapter.id])).join("")}</div>
+				<div class="lower-grid"><section class="panel"><h3>Jejak belajarmu</h3>${data.activities.length ? data.activities.slice(0, 4).map(item => `<div class="activity-row"><span class="activity-dot"></span><p>${escapeHtml(item.text)}<small>${escapeHtml(item.time)}</small></p></div>`).join("") : `<div class="empty-state">Aktivitas belajarmu akan muncul di sini.</div>`}</section><section class="panel center"><h3>Perjalananmu</h3><div class="progress-ring" style="--progress:${overallProgress(data) * 3.6}deg"><strong>${overallProgress(data)}%</strong></div><span class="muted-small">dari seluruh kegiatan pembelajaran</span></section></div>`;
+			attachChapterButtons();
+			document.getElementById("continueLearning").addEventListener("click", () => openChapter(firstAvailableChapter(data)));
+			document.getElementById("allChapters").addEventListener("click", () => navigate("chapters"));
+		}
+		function firstAvailableChapter(data) { return chapters.find(chapter => data.progress[chapter.id]?.status !== "Locked")?.id || 1; }
+		function renderChapters() {
+			document.getElementById("breadcrumb").textContent = "Kegiatan Pembelajaran";
+			const data = studentData();
+			mainContent.innerHTML = `<div class="welcome"><div><div class="eyebrow">Peta perjalanan</div><h1>Kegiatan Pembelajaran</h1><p>Selesaikan uji pemahaman untuk membuka bab berikutnya.</p></div><div class="date-pill">${overallProgress(data)}% perjalanan</div></div><div class="chapter-list">${chapters.map(chapter => chapterCard(chapter, data.progress[chapter.id])).join("")}</div>`;
+			attachChapterButtons();
+		}
+		function openChapter(id) {
+			const data = studentData();
+			if (data.progress[id]?.status === "Locked") return showToast("Selesaikan uji pemahaman bab sebelumnya untuk membuka bab ini.");
+			currentChapter = id;
+			const progress = data.progress[id];
+			if (!progress.material) {
+				progress.material = true;
+				recordActivity(`Membuka materi KP ${id}`);
+			}
+			renderLesson();
+		}
+		function renderLesson() {
+			const chapter = chapters[currentChapter - 1];
+			const data = studentData();
+			const progress = data.progress[currentChapter];
+			document.getElementById("breadcrumb").textContent = `KP ${currentChapter} · Materi`;
+			mainContent.innerHTML = `<div class="lesson-layout"><article class="lesson-main"><button class="back-link" id="backChapters">← Kembali ke daftar KP</button><div class="lesson-heading"><div class="eyebrow">Kegiatan Pembelajaran ${currentChapter} · Materi</div><h1>${chapter.title}</h1><p>Amati, hubungkan, lalu temukan peluang ekonomi yang menjaga ekosistem.</p></div><div class="lesson-image" role="img" aria-label="Pemandangan ekosistem pesisir tropis"></div><section class="lesson-content"><h2>Ruang hidup yang saling terhubung</h2><p>Wilayah pesisir adalah ruang pertemuan antara daratan dan lautan. Di dalamnya terdapat ekosistem seperti mangrove, padang lamun, dan terumbu karang. Masing-masing menyediakan habitat, melindungi garis pantai, serta mendukung kehidupan masyarakat.</p><p>Ekosistem yang terjaga juga menopang berbagai kegiatan ekonomi: perikanan, pengolahan hasil laut, transportasi, hingga wisata alam. Karena itu, kesehatan lingkungan dan kesejahteraan warga pesisir tidak bisa dipisahkan.</p><div class="callout"><b>Coba pikirkan:</b> dari mana ikan yang dijual di pasar berasal, dan ekosistem apa yang mendukung kehidupannya?</div><h3>Manfaat ekosistem pesisir</h3><ul><li>Menjadi tempat berkembang biak dan mencari makan bagi biota laut.</li><li>Mengurangi dampak gelombang serta membantu mencegah abrasi.</li><li>Mendukung sumber pangan, mata pencaharian, dan kegiatan wisata.</li></ul><h3>Amati lebih dekat</h3><p>Perhatikan hubungan antara kondisi terumbu karang dengan hasil tangkapan nelayan. Perubahan pada satu bagian ekosistem dapat berdampak pada bagian lain, termasuk penghasilan keluarga.</p><div class="activity-box"><h3>Aktivitas: catatan pengamatan pesisir</h3><p>Pilih satu contoh kegiatan ekonomi di daerah pesisir yang kamu ketahui. Tuliskan sumber daya alam yang digunakan dan satu cara agar kegiatan tersebut tetap menjaga lingkungan.</p><label class="field">Catatan pengamatan<textarea id="observation" rows="3" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;font:inherit;resize:vertical" placeholder="Contoh: warga mengolah ikan menjadi abon..."></textarea></label><button id="saveActivity" class="btn secondary">Simpan aktivitas</button> <span id="activityStatus" class="muted-small">${progress.activity ? "Aktivitas sudah tersimpan." : ""}</span></div><h3>Media pembelajaran</h3><p>Tambahkan video, audio, gambar ilustrasi, atau QR code. Berkas akan ditampilkan langsung di halaman materi ini.</p><input id="lessonMedia" type="file" accept="image/*,video/*,audio/*" hidden /><button id="chooseMedia" class="btn secondary" type="button">Pilih media pembelajaran</button><div id="mediaPreview" class="media-preview" aria-live="polite"></div><p style="margin-top:14px"><a href="https://www.youtube.com/results?search_query=ekosistem+terumbu+karang+indonesia" target="_blank" rel="noreferrer">Referensi video terumbu karang ↗</a></p></section><div style="display:flex;justify-content:space-between;gap:10px;margin-top:15px"><button id="previousChapter" class="btn secondary" ${currentChapter === 1 ? "disabled" : ""}>← KP sebelumnya</button><button id="goAssessment" class="btn">Uji pemahaman →</button></div></article><aside class="lesson-side"><h3>Di KP ini</h3><div class="lesson-step active"><b>01</b><span>Materi pembelajaran</span></div><div class="lesson-step ${progress.activity ? "active" : ""}"><b>02</b><span>Aktivitas pengamatan</span></div><div class="lesson-step"><b>03</b><span>Uji pemahaman</span></div><div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)"><span class="muted-small">Status KP</span><div style="margin-top:7px"><span class="status ${progress.status === "Completed" ? "completed" : ""}">${progress.status === "Completed" ? "✓ Selesai" : "● Berlangsung"}</span></div></div></aside></div>`;
+			document.getElementById("backChapters").addEventListener("click", () => navigate("chapters"));
+			document.getElementById("saveActivity").addEventListener("click", saveActivity);
+			document.getElementById("chooseMedia").addEventListener("click", () => document.getElementById("lessonMedia").click());
+			document.getElementById("lessonMedia").addEventListener("change", event => {
+				const file = event.target.files[0];
+				if (!file) return;
+				const preview = document.getElementById("mediaPreview");
+				const media = document.createElement(file.type.startsWith("video/") ? "video" : file.type.startsWith("audio/") ? "audio" : "img");
+				media.src = URL.createObjectURL(file);
+				if (media.tagName !== "IMG") media.controls = true;
+				if (media.tagName === "IMG") media.alt = file.name;
+				preview.replaceChildren(media);
+			});
+			document.getElementById("goAssessment").addEventListener("click", renderAssessment);
+			document.getElementById("previousChapter").addEventListener("click", () => openChapter(Math.max(1, currentChapter - 1)));
+		}
+		function saveActivity() {
+			const observation = document.getElementById("observation").value.trim();
+			if (observation.length < 8) return showToast("Tambahkan catatan singkat sebelum menyimpan aktivitas.");
+			const progress = studentData().progress[currentChapter];
+			progress.activity = true;
+			progress.observation = observation;
+			recordActivity(`Menyelesaikan aktivitas KP ${currentChapter}`);
+			document.getElementById("activityStatus").textContent = "Aktivitas sudah tersimpan.";
+			showToast("Aktivitas tersimpan di progress belajarmu.");
+		}
+		function renderAssessment(result) {
+			const chapter = chapters[currentChapter - 1];
+			document.getElementById("breadcrumb").textContent = `KP ${currentChapter} · Uji Pemahaman`;
+			const questions = chapter.questions.map((question, index) => `<section class="question"><h3>${index + 1}. ${question.text}</h3>${question.options.map((option, optionIndex) => `<label class="option"><input type="radio" name="q${index}" value="${optionIndex}" ${result?.answers?.[index] === optionIndex ? "checked" : ""} /><span>${option}</span></label>`).join("")}</section>`).join("");
+			mainContent.innerHTML = `<div class="assessment"><button class="back-link" id="backToLesson">← Kembali ke materi</button><div class="lesson-heading"><div class="eyebrow">Kegiatan Pembelajaran ${currentChapter} · Evaluasi</div><h1>Uji Pemahaman</h1><p>Pilih satu jawaban yang paling tepat pada setiap pertanyaan.</p></div><div class="date-pill" style="display:inline-block;margin:7px 0 8px">${chapter.questions.length} soal · Nilai lulus ${passingGrade}</div><form id="quizForm">${questions}<button class="btn" type="submit">Periksa jawaban <span aria-hidden="true">→</span></button></form>${result ? `<div class="assessment-result ${result.passed ? "" : "fail"}"><h2>Nilaimu ${result.score}</h2><p>${result.passed ? `Hebat! KP ${currentChapter} selesai dan bab berikutnya terbuka.` : `Belum mencapai nilai ${passingGrade}. Baca kembali materi, lalu coba lagi.`}</p>${result.passed && currentChapter < chapters.length ? `<button id="nextChapter" class="btn">Lanjut ke KP ${currentChapter + 1} →</button>` : result.passed ? `<strong>Semua kegiatan pembelajaran selesai. Keren!</strong>` : ""}</div>` : ""}</div>`;
+			document.getElementById("backToLesson").addEventListener("click", renderLesson);
+			document.getElementById("quizForm").addEventListener("submit", submitAssessment);
+			if (result?.passed && currentChapter < chapters.length) document.getElementById("nextChapter").addEventListener("click", () => openChapter(currentChapter + 1));
+		}
+		function submitAssessment(event) {
+			event.preventDefault();
+			const answers = chapters[currentChapter - 1].questions.map((_, index) => {
+				const selected = document.querySelector(`input[name="q${index}"]:checked`);
+				return selected ? Number(selected.value) : -1;
+			});
+			if (answers.includes(-1)) return showToast("Jawab semua pertanyaan sebelum memeriksa hasil.");
+			const questions = chapters[currentChapter - 1].questions;
+			const correct = answers.filter((answer, index) => answer === questions[index].answer).length;
+			const score = Math.round(correct / questions.length * 100);
+			const passed = score >= passingGrade;
+			const data = studentData();
+			data.scores[currentChapter] = score;
+			if (passed) {
+				data.progress[currentChapter] = { ...data.progress[currentChapter], status: "Completed", material: true, activity: true };
+				if (currentChapter < chapters.length && data.progress[currentChapter + 1].status === "Locked") data.progress[currentChapter + 1] = { status: "In Progress", material: false, activity: false };
+			}
+			recordActivity(`${passed ? "Lulus" : "Mengerjakan"} Uji Pemahaman KP ${currentChapter} · Nilai ${score}`);
+			persist();
+			renderAssessment({ score, passed, answers });
+		}
+		function renderProgress() {
+			const data = studentData();
+			document.getElementById("breadcrumb").textContent = "Progress belajar";
+			mainContent.innerHTML = `<div class="welcome"><div><div class="eyebrow">Rekam jejak</div><h1>Progress belajarku</h1><p>Semua langkah dan hasil belajarmu tersimpan di sini.</p></div><div class="date-pill">${overallProgress(data)}% selesai</div></div><div class="stats"><div class="stat"><div class="stat-icon">🐚</div><div><strong>${Object.values(data.progress).filter(item => item.status === "Completed").length}</strong><span>KP selesai</span></div></div><div class="stat"><div class="stat-icon">✦</div><div><strong>${Object.keys(data.scores).length}</strong><span>Evaluasi dikerjakan</span></div></div><div class="stat"><div class="stat-icon">🌱</div><div><strong>${overallProgress(data)}%</strong><span>Progress keseluruhan</span></div></div></div><div class="section-head"><div><h2>Status setiap bab</h2><p>Bab terbuka setelah nilai evaluasi mencapai ${passingGrade}.</p></div></div><div class="chapter-list">${chapters.map(chapter => chapterCard(chapter, data.progress[chapter.id])).join("")}</div><div class="section-head"><div><h2>Riwayat aktivitas</h2></div></div><section class="panel">${data.activities.length ? data.activities.map(item => `<div class="activity-row"><span class="activity-dot"></span><p>${escapeHtml(item.text)}<small>${escapeHtml(item.time)}</small></p></div>`).join("") : `<div class="empty-state">Belum ada aktivitas yang tercatat.</div>`}</section>`;
+			attachChapterButtons();
+		}
+		function renderTeacherHome() {
+			const students = Object.entries(store.students);
+			const done = students.reduce((sum, [, data]) => sum + Object.values(data.progress).filter(item => item.status === "Completed").length, 0);
+			const scores = students.flatMap(([, data]) => Object.values(data.scores));
+			const average = scores.length ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length) : "–";
+			document.getElementById("breadcrumb").textContent = "Dashboard guru";
+			mainContent.innerHTML = `<div class="welcome"><div><div class="eyebrow">Ruang pemantauan</div><h1>Halo, Guru! 👋</h1><p>Pantau perjalanan belajar dan perkembangan kelasmu.</p></div><div class="date-pill">${new Intl.DateTimeFormat("id-ID", { dateStyle: "full" }).format(new Date())}</div></div><div class="stats"><div class="stat"><div class="stat-icon">♧</div><div><strong>${students.length}</strong><span>Siswa terdaftar</span></div></div><div class="stat"><div class="stat-icon">✦</div><div><strong>${average}</strong><span>Rata-rata nilai evaluasi</span></div></div><div class="stat"><div class="stat-icon">✓</div><div><strong>${done}</strong><span>KP diselesaikan kelas</span></div></div></div><div class="section-head"><div><h2>Monitoring siswa</h2><p>Ringkasan progress dan evaluasi terbaru.</p></div><button id="viewStudents" class="btn secondary">Daftar siswa →</button></div>${studentTable()}<div class="section-head"><div><h2>Aktivitas terbaru</h2><p>Pergerakan siswa di ruang belajar.</p></div><button id="viewHistory" class="btn secondary">Semua riwayat →</button></div><section class="panel">${store.history.length ? store.history.slice(0, 5).map(item => `<div class="activity-row"><span class="activity-dot"></span><p><b>${escapeHtml(item.student)}</b> · ${escapeHtml(item.text)}<small>${escapeHtml(item.time)}</small></p></div>`).join("") : `<div class="empty-state">Aktivitas siswa akan muncul di sini.</div>`}</section>`;
+			document.getElementById("viewStudents").addEventListener("click", () => navigate("students"));
+			document.getElementById("viewHistory").addEventListener("click", () => navigate("history"));
+		}
+		function studentTable() {
+			const rows = Object.entries(store.students).map(([username, data]) => {
+				const completed = Object.values(data.progress).filter(item => item.status === "Completed").length;
+				const scores = Object.values(data.scores);
+				const lastScore = scores.length ? scores[scores.length - 1] : "–";
+				const percent = overallProgress(data);
+				return `<tr><td><div class="student-cell"><span class="tiny-avatar">${escapeHtml(data.name.charAt(0))}</span>${escapeHtml(data.name)}</div></td><td>${completed}/${chapters.length} KP</td><td><div class="bar-track"><i style="width:${percent}%"></i></div></td><td>${lastScore}${lastScore === "–" ? "" : " / 100"}</td><td><span class="role-tag">${completed === chapters.length ? "Tuntas" : "Belajar"}</span></td><td><button class="chapter-action" data-student="${escapeHtml(username)}">Detail</button></td></tr>`;
+			}).join("");
+			return `<div class="table-wrap"><table><thead><tr><th>Nama siswa</th><th>KP selesai</th><th>Progress</th><th>Nilai terakhir</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+		}
+		function renderStudents() {
+			document.getElementById("breadcrumb").textContent = "Daftar siswa";
+			mainContent.innerHTML = `<div class="welcome"><div><div class="eyebrow">Pemantauan kelas</div><h1>Daftar siswa</h1><p>Lihat capaian setiap siswa dan hasil evaluasi mereka.</p></div></div>${studentTable()}<div id="studentDetail" style="margin-top:18px"></div>`;
+			document.querySelectorAll("[data-student]").forEach(button => button.addEventListener("click", () => renderStudentDetail(button.dataset.student)));
+		}
+		function renderStudentDetail(username) {
+			const data = store.students[username];
+			const scores = Object.entries(data.scores);
+			document.getElementById("studentDetail").innerHTML = `<section class="panel"><div class="section-head" style="margin-top:0"><div><h2>${escapeHtml(data.name)}</h2><p>Akun siswa: ${escapeHtml(username)} · Progress ${overallProgress(data)}%</p></div></div><div class="chapter-list">${chapters.map(chapter => chapterCardForStudent(chapter, data)).join("")}</div><div class="section-head"><div><h2>Rekap nilai</h2></div></div>${scores.length ? `<div class="table-wrap"><table><thead><tr><th>Kegiatan Pembelajaran</th><th>Nilai</th><th>Hasil</th></tr></thead><tbody>${scores.map(([id, score]) => `<tr><td>KP ${id} · ${chapters[id - 1].title}</td><td>${score} / 100</td><td><span class="role-tag">${score >= passingGrade ? "Lulus" : "Belum lulus"}</span></td></tr>`).join("")}</tbody></table></div>` : `<div class="empty-state">Belum ada evaluasi yang dikerjakan.</div>`}</section>`;
+		}
+		function chapterCardForStudent(chapter, data) {
+			const status = data.progress[chapter.id]?.status || "Locked";
+			return `<article class="chapter" data-status="${status}"><div class="chapter-number">KP ${chapter.id}</div><div><h3>${chapter.title}</h3><p>${data.scores[chapter.id] !== undefined ? `Nilai evaluasi: ${data.scores[chapter.id]} / 100` : "Belum ada nilai evaluasi"}</p></div><div class="chapter-meta"><span class="status ${status === "Completed" ? "completed" : status === "Locked" ? "locked" : ""}">${status}</span></div></article>`;
+		}
+		function renderHistory() {
+			document.getElementById("breadcrumb").textContent = "Riwayat aktivitas";
+			mainContent.innerHTML = `<div class="welcome"><div><div class="eyebrow">Aktivitas kelas</div><h1>Riwayat aktivitas</h1><p>Catatan materi, aktivitas, dan evaluasi seluruh siswa.</p></div></div><section class="panel">${store.history.length ? store.history.map(item => `<div class="activity-row"><span class="activity-dot"></span><p><b>${escapeHtml(item.student)}</b> · ${escapeHtml(item.text)}<small>${escapeHtml(item.time)}</small></p></div>`).join("") : `<div class="empty-state">Belum ada aktivitas yang tercatat.</div>`}</section>`;
+		}
+		document.querySelectorAll("[data-role]").forEach(button => button.addEventListener("click", () => {
+			selectedRole = button.dataset.role;
+			document.querySelectorAll("[data-role]").forEach(item => item.classList.toggle("active", item === button));
+			document.getElementById("username").value = selectedRole === "teacher" ? "guru" : "naya";
+			document.getElementById("loginError").textContent = "";
+		}));
+		document.getElementById("loginForm").addEventListener("submit", event => {
+			event.preventDefault();
+			const username = document.getElementById("username").value.trim().toLowerCase();
+			const password = document.getElementById("password").value;
+			if (password !== "belajar") {
+				document.getElementById("loginError").textContent = "Username atau password belum sesuai.";
+				return;
+			}
+			if (selectedRole === "teacher" && username === "guru") return enterApp({ username, role: "teacher" });
+			if (selectedRole === "student" && store.students[username]) return enterApp({ username, role: "student" });
+			document.getElementById("loginError").textContent = "Akun tidak ditemukan untuk peran yang dipilih.";
+		});
+		document.getElementById("logoutButton").addEventListener("click", () => {
+			currentUser = null;
+			appScreen.classList.add("hidden");
+			loginScreen.classList.remove("hidden");
+			document.getElementById("password").value = "belajar";
+		});
+	</script>
+</body>
+</html>
