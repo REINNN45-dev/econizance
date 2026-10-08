@@ -629,16 +629,92 @@ if (error) {
 
     return `<div class="table-wrap"><table><thead><tr><th>Nama siswa</th><th>KP selesai</th><th>Progress</th><th>Nilai terakhir</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
-		function renderStudents() {
-			document.getElementById("breadcrumb").textContent = "Daftar siswa";
-			mainContent.innerHTML = `<div class="welcome"><div><div class="eyebrow">Pemantauan kelas</div><h1>Daftar siswa</h1><p>Lihat capaian setiap siswa dan hasil evaluasi mereka.</p></div></div>${studentTable()}<div id="studentDetail" style="margin-top:18px"></div>`;
-			document.querySelectorAll("[data-student]").forEach(button => button.addEventListener("click", () => renderStudentDetail(button.dataset.student)));
-		}
-		function renderStudentDetail(username) {
-			const data = store.students[username];
-			const scores = Object.entries(data.scores);
-			document.getElementById("studentDetail").innerHTML = `<section class="panel"><div class="section-head" style="margin-top:0"><div><h2>${escapeHtml(data.name)}</h2><p>Akun siswa: ${escapeHtml(username)} · Progress ${overallProgress(data)}%</p></div></div><div class="chapter-list">${chapters.map(chapter => chapterCardForStudent(chapter, data)).join("")}</div><div class="section-head"><div><h2>Rekap nilai</h2></div></div>${scores.length ? `<div class="table-wrap"><table><thead><tr><th>Kegiatan Pembelajaran</th><th>Nilai</th><th>Hasil</th></tr></thead><tbody>${scores.map(([id, score]) => `<tr><td>KP ${id} · ${chapters[id - 1].title}</td><td>${score} / 100</td><td><span class="role-tag">${score >= passingGrade ? "Lulus" : "Belum lulus"}</span></td></tr>`).join("")}</tbody></table></div>` : `<div class="empty-state">Belum ada evaluasi yang dikerjakan.</div>`}</section>`;
-		}
+		async function renderStudents() {
+    const students = await getStudentsFromSupabase();
+
+    document.getElementById("breadcrumb").textContent = "Daftar siswa";
+
+    mainContent.innerHTML = `
+        <div class="welcome">
+            <div>
+                <div class="eyebrow">Pemantauan kelas</div>
+                <h1>Daftar siswa</h1>
+                <p>Lihat capaian setiap siswa dan hasil evaluasi mereka.</p>
+            </div>
+        </div>
+
+        ${studentTable(students)}
+
+        <div id="studentDetail" style="margin-top:18px"></div>
+    `;
+
+    document.querySelectorAll("[data-student]").forEach(button =>
+        button.addEventListener("click", () =>
+            renderStudentDetail(button.dataset.student)
+        )
+    );
+}
+		async function renderStudentDetail(username) {
+    const students = await getStudentsFromSupabase();
+    const data = students.find(student => student.username === username);
+
+    if (!data) {
+        showToast("Data siswa tidak ditemukan.");
+        return;
+    }
+
+    const scores = Object.entries(data.scores);
+
+    document.getElementById("studentDetail").innerHTML = `
+        <section class="panel">
+            <div class="section-head" style="margin-top:0">
+                <div>
+                    <h2>${escapeHtml(data.name)}</h2>
+                    <p>Akun siswa: ${escapeHtml(username)} · Progress ${overallProgress(data)}%</p>
+                </div>
+            </div>
+
+            <div class="chapter-list">
+                ${chapters.map(chapter => chapterCardForStudent(chapter, data)).join("")}
+            </div>
+
+            <div class="section-head">
+                <div><h2>Rekap nilai</h2></div>
+            </div>
+
+            ${
+                scores.length
+                    ? `
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Kegiatan Pembelajaran</th>
+                                    <th>Nilai</th>
+                                    <th>Hasil</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${scores.map(([id, score]) => `
+                                    <tr>
+                                        <td>KP ${id} · ${chapters[id - 1].title}</td>
+                                        <td>${score} / 100</td>
+                                        <td>
+                                            <span class="role-tag">
+                                                ${score >= passingGrade ? "Lulus" : "Belum lulus"}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                `).join("")}
+                            </tbody>
+                        </table>
+                    </div>
+                    `
+                    : `<div class="empty-state">Belum ada evaluasi yang dikerjakan.</div>`
+            }
+        </section>
+    `;
+}
 		function chapterCardForStudent(chapter, data) {
 			const status = data.progress[chapter.id]?.status || "Locked";
 			return `<article class="chapter" data-status="${status}"><div class="chapter-number">KP ${chapter.id}</div><div><h3>${chapter.title}</h3><p>${data.scores[chapter.id] !== undefined ? `Nilai evaluasi: ${data.scores[chapter.id]} / 100` : "Belum ada nilai evaluasi"}</p></div><div class="chapter-meta"><span class="status ${status === "Completed" ? "completed" : status === "Locked" ? "locked" : ""}">${status}</span></div></article>`;
