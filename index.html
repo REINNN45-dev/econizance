@@ -488,7 +488,7 @@
 			document.getElementById("quizForm").addEventListener("submit", submitAssessment);
 			if (result?.passed && currentChapter < chapters.length) document.getElementById("nextChapter").addEventListener("click", () => openChapter(currentChapter + 1));
 		}
-		function submitAssessment(event) {
+		async function submitAssessment(event) {
 			event.preventDefault();
 			const answers = chapters[currentChapter - 1].questions.map((_, index) => {
 				const selected = document.querySelector(`input[name="q${index}"]:checked`);
@@ -501,6 +501,20 @@
 			const passed = score >= passingGrade;
 			const data = studentData();
 			data.scores[currentChapter] = score;
+			const { error } = await sb
+    .from("scores")
+    .insert({
+        user_id: currentUser.id,
+        username: currentUser.username,
+        chapter_id: currentChapter,
+        score: score
+    });
+
+if (error) {
+    console.error("Gagal menyimpan nilai:", error);
+    showToast("Nilai gagal disimpan ke server.");
+    return;
+}
 			if (passed) {
 				data.progress[currentChapter] = { ...data.progress[currentChapter], status: "Completed", material: true, activity: true };
 				if (currentChapter < chapters.length && data.progress[currentChapter + 1].status === "Locked") data.progress[currentChapter + 1] = { status: "In Progress", material: false, activity: false };
