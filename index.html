@@ -582,20 +582,23 @@ if (error) {
     const scores = students.flatMap(data => Object.values(data.scores));
     const average = scores.length ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length) : "–";
 			document.getElementById("breadcrumb").textContent = "Dashboard guru";
-			mainContent.innerHTML = `<div class="welcome"><div><div class="eyebrow">Ruang pemantauan</div><h1>Halo, Guru! 👋</h1><p>Pantau perjalanan belajar dan perkembangan kelasmu.</p></div><div class="date-pill">${new Intl.DateTimeFormat("id-ID", { dateStyle: "full" }).format(new Date())}</div></div><div class="stats"><div class="stat"><div class="stat-icon">♧</div><div><strong>${students.length}</strong><span>Siswa terdaftar</span></div></div><div class="stat"><div class="stat-icon">✦</div><div><strong>${average}</strong><span>Rata-rata nilai evaluasi</span></div></div><div class="stat"><div class="stat-icon">✓</div><div><strong>${done}</strong><span>KP diselesaikan kelas</span></div></div></div><div class="section-head"><div><h2>Monitoring siswa</h2><p>Ringkasan progress dan evaluasi terbaru.</p></div><button id="viewStudents" class="btn secondary">Daftar siswa →</button></div>${studentTable()}<div class="section-head"><div><h2>Aktivitas terbaru</h2><p>Pergerakan siswa di ruang belajar.</p></div><button id="viewHistory" class="btn secondary">Semua riwayat →</button></div><section class="panel">${store.history.length ? store.history.slice(0, 5).map(item => `<div class="activity-row"><span class="activity-dot"></span><p><b>${escapeHtml(item.student)}</b> · ${escapeHtml(item.text)}<small>${escapeHtml(item.time)}</small></p></div>`).join("") : `<div class="empty-state">Aktivitas siswa akan muncul di sini.</div>`}</section>`;
+			mainContent.innerHTML = `<div class="welcome"><div><div class="eyebrow">Ruang pemantauan</div><h1>Halo, Guru! 👋</h1><p>Pantau perjalanan belajar dan perkembangan kelasmu.</p></div><div class="date-pill">${new Intl.DateTimeFormat("id-ID", { dateStyle: "full" }).format(new Date())}</div></div><div class="stats"><div class="stat"><div class="stat-icon">♧</div><div><strong>${students.length}</strong><span>Siswa terdaftar</span></div></div><div class="stat"><div class="stat-icon">✦</div><div><strong>${average}</strong><span>Rata-rata nilai evaluasi</span></div></div><div class="stat"><div class="stat-icon">✓</div><div><strong>${done}</strong><span>KP diselesaikan kelas</span></div></div></div><div class="section-head"><div><h2>Monitoring siswa</h2><p>Ringkasan progress dan evaluasi terbaru.</p></div><button id="viewStudents" class="btn secondary">Daftar siswa →</button></div>${studentTable(students)}<div class="section-head"><div><h2>Aktivitas terbaru</h2><p>Pergerakan siswa di ruang belajar.</p></div><button id="viewHistory" class="btn secondary">Semua riwayat →</button></div><section class="panel">${store.history.length ? store.history.slice(0, 5).map(item => `<div class="activity-row"><span class="activity-dot"></span><p><b>${escapeHtml(item.student)}</b> · ${escapeHtml(item.text)}<small>${escapeHtml(item.time)}</small></p></div>`).join("") : `<div class="empty-state">Aktivitas siswa akan muncul di sini.</div>`}</section>`;
 			document.getElementById("viewStudents").addEventListener("click", () => navigate("students"));
 			document.getElementById("viewHistory").addEventListener("click", () => navigate("history"));
 		}
-		function studentTable() {
-			const rows = Object.entries(store.students).map(([username, data]) => {
-				const completed = Object.values(data.progress).filter(item => item.status === "Completed").length;
-				const scores = Object.values(data.scores);
-				const lastScore = scores.length ? scores[scores.length - 1] : "–";
-				const percent = overallProgress(data);
-				return `<tr><td><div class="student-cell"><span class="tiny-avatar">${escapeHtml(data.name.charAt(0))}</span>${escapeHtml(data.name)}</div></td><td>${completed}/${chapters.length} KP</td><td><div class="bar-track"><i style="width:${percent}%"></i></div></td><td>${lastScore}${lastScore === "–" ? "" : " / 100"}</td><td><span class="role-tag">${completed === chapters.length ? "Tuntas" : "Belajar"}</span></td><td><button class="chapter-action" data-student="${escapeHtml(username)}">Detail</button></td></tr>`;
-			}).join("");
-			return `<div class="table-wrap"><table><thead><tr><th>Nama siswa</th><th>KP selesai</th><th>Progress</th><th>Nilai terakhir</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
-		}
+		function studentTable(students) {
+    const rows = students.map(data => {
+        const username = data.username;
+        const completed = Object.values(data.progress).filter(item => item.status === "Completed").length;
+        const scores = Object.values(data.scores);
+        const lastScore = scores.length ? scores[scores.length - 1] : "–";
+        const percent = overallProgress(data);
+
+        return `<tr><td><div class="student-cell"><span class="tiny-avatar">${escapeHtml(data.name.charAt(0))}</span>${escapeHtml(data.name)}</div></td><td>${completed}/${chapters.length} KP</td><td><div class="bar-track"><i style="width:${percent}%"></i></div></td><td>${lastScore}${lastScore === "–" ? "" : " / 100"}</td><td><span class="role-tag">${completed === chapters.length ? "Tuntas" : "Belajar"}</span></td><td><button class="chapter-action" data-student="${escapeHtml(username)}">Detail</button></td></tr>`;
+    }).join("");
+
+    return `<div class="table-wrap"><table><thead><tr><th>Nama siswa</th><th>KP selesai</th><th>Progress</th><th>Nilai terakhir</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
 		function renderStudents() {
 			document.getElementById("breadcrumb").textContent = "Daftar siswa";
 			mainContent.innerHTML = `<div class="welcome"><div><div class="eyebrow">Pemantauan kelas</div><h1>Daftar siswa</h1><p>Lihat capaian setiap siswa dan hasil evaluasi mereka.</p></div></div>${studentTable()}<div id="studentDetail" style="margin-top:18px"></div>`;
