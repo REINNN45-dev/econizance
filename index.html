@@ -719,10 +719,37 @@ if (error) {
 			const status = data.progress[chapter.id]?.status || "Locked";
 			return `<article class="chapter" data-status="${status}"><div class="chapter-number">KP ${chapter.id}</div><div><h3>${chapter.title}</h3><p>${data.scores[chapter.id] !== undefined ? `Nilai evaluasi: ${data.scores[chapter.id]} / 100` : "Belum ada nilai evaluasi"}</p></div><div class="chapter-meta"><span class="status ${status === "Completed" ? "completed" : status === "Locked" ? "locked" : ""}">${status}</span></div></article>`;
 		}
-		function renderHistory() {
-			document.getElementById("breadcrumb").textContent = "Riwayat aktivitas";
-			mainContent.innerHTML = `<div class="welcome"><div><div class="eyebrow">Aktivitas kelas</div><h1>Riwayat aktivitas</h1><p>Catatan materi, aktivitas, dan evaluasi seluruh siswa.</p></div></div><section class="panel">${store.history.length ? store.history.map(item => `<div class="activity-row"><span class="activity-dot"></span><p><b>${escapeHtml(item.student)}</b> · ${escapeHtml(item.text)}<small>${escapeHtml(item.time)}</small></p></div>`).join("") : `<div class="empty-state">Belum ada aktivitas yang tercatat.</div>`}</section>`;
-		}
+		async function renderHistory() {
+    const activities = await getActivitiesFromSupabase();
+
+    document.getElementById("breadcrumb").textContent = "Riwayat aktivitas";
+
+    mainContent.innerHTML = `
+        <div class="welcome">
+            <div>
+                <div class="eyebrow">Aktivitas kelas</div>
+                <h1>Riwayat aktivitas</h1>
+                <p>Catatan materi, aktivitas, dan evaluasi seluruh siswa.</p>
+            </div>
+        </div>
+
+        <section class="panel">
+            ${
+                activities.length
+                    ? activities.map(item => `
+                        <div class="activity-row">
+                            <span class="activity-dot"></span>
+                            <p>
+                                <b>${escapeHtml(item.username)}</b> · ${escapeHtml(item.text)}
+                                <small>${escapeHtml(item.time)}</small>
+                            </p>
+                        </div>
+                    `).join("")
+                    : `<div class="empty-state">Belum ada aktivitas yang tercatat.</div>`
+            }
+        </section>
+    `;
+}
 		document.querySelectorAll("[data-role]").forEach(button => button.addEventListener("click", () => {
     selectedRole = button.dataset.role;
 
